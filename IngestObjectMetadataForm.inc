@@ -219,6 +219,7 @@ class IngestObjectMetadataForm {
         $state = $form['#post']['active-toggle'] ? 'A' : 'I';
       }
       $pid = $collection_policy->getNextPid($content_model_dsid);
+      $form_state['values']['pid'] = $pid;//we may need the pid if someone does hook form alter they will probably want to know what object was just created
       $ingest_file_location = isset($form_state['values']['ingest-file-location']) ? $form_state['values']['ingest-file-location'] : NULL;
       $transform = islandora_content_model_get_transform($content_model_pid, $form_name);
       $transform = drupal_get_path('module', 'islandora_content_model_forms') . "/transforms/$transform";
