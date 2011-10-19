@@ -170,7 +170,7 @@ class FOXML extends DOMDocument {
 
   private function getFileAttributes($file) {
     global $base_url;
-    module_load_include('inc', 'fedora_repository', 'MimeClass');
+    module_load_include('inc', 'fedora_repository', 'api/MimeClass');
     module_load_include('inc', 'fedora_repository', 'api/fedora_util');
     $mime = new MimeClass();
     $mime_type = $mime->getType($file);
@@ -202,7 +202,7 @@ class FOXML extends DOMDocument {
    * @return DOMElement
    */
   private function getPolicyStreamElement() {
-    module_load_include('inc', 'fedora_repository', 'ObjectHelper');
+    module_load_include('inc', 'fedora_repository', 'api/ObjectHelper');
     $object_helper = new ObjectHelper();
     $policy_stream = $object_helper->getStream($this->collectionPid, 'CHILD_SECURITY', FALSE);
     if (!isset($policy_stream)) {

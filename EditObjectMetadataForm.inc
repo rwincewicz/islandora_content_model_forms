@@ -7,7 +7,7 @@
  *
  */
 module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-module_load_include('inc', 'fedora_repository', 'ContentModel');
+module_load_include('inc', 'fedora_repository', 'core/ContentModel');
 module_load_include('inc', 'xml_form_api', 'XMLForm');
 
 /**
