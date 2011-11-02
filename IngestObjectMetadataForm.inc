@@ -1,6 +1,6 @@
 <?php
 
-
+// $Id$
 
 /**
  * @file
@@ -146,7 +146,7 @@ class IngestObjectMetadataForm {
   public function create($collection_pid, $collection_label, array &$form_state) {
     $page = $form_state['storage']['step'] = empty($form_state['storage']['step']) ? 1 : $form_state['storage']['step'];
     if ($page == 1) {
-      $form_state['storage']['xml'] = TRUE;
+      $form_state['storage']['xml'] = true;
       return $this->createPageOne($collection_pid, $collection_label, $form_state);
     }
     else if ($form_state['storage']['xml']) {
@@ -208,19 +208,7 @@ class IngestObjectMetadataForm {
       }
       $pid = $collection_policy->getNextPid($content_model_dsid);
       $form_state['values']['pid'] = $pid;
-      // added ne functionality to static thumbnails to objects if values are provided in MODS forms
-      $module = isset($form_state['values']['module']) ? $form_state['values']['module'] : NULL;
-      $image_dir = isset($form_state['values']['image_directory']) ? $form_state['values']['image_directory'] : NULL;
-      $thumbnail_file = isset($form_state['values']['thumbnail_file']) ? $form_state['values']['thumbnail_file'] : NULL;
-
-      if ($module && $thumbnail_file) {
-        $stored_thumbnail = drupal_get_path('module', $module) . "/$image_dir/$thumbnail_file";
-        $stored_thumbnail = preg_replace('/\/\//', '/', $stored_thumbnail);
-        file_copy($stored_thumbnail, file_directory_path());
-        $thumbnail = file_directory_path() . '/' . $thumbnail_file;
-        $_SESSION['fedora_ingest_files']["TN"] = $thumbnail;
-      }
-
+      
       $uploaded_file = isset($form_state['values']['ingest-file-location']) && trim($form_state['values']['ingest-file-location']) !== '';
       $ingest_file_location = $uploaded_file ? $form_state['values']['ingest-file-location'] : NULL;
       if (isset($ingest_file_location)) {
@@ -231,11 +219,14 @@ class IngestObjectMetadataForm {
           $ingest_file_location[$key] = $value;
         }
       }
-
-
+      if (isset($_SESSION['fedora_ingest_methods']) && is_array($_SESSION['fedora_ingest_method'])) {
+        foreach ($_SESSION['fedora_ingest_method'] as $key => $value) {
+          $ingest_file_methods[$key] = $value;
+        }
+      }
       $transform = islandora_content_model_get_transform($content_model_pid, $form_name);
       $transform = drupal_get_path('module', 'islandora_content_model_forms') . "/transforms/$transform";
-      $foxml = new FOXML($label, $pid, $dsid, $content_model_pid, $collection_pid, $relationship, $ingest_file_location, $document, $transform, $state);
+      $foxml = new FOXML($label, $pid, $dsid, $content_model_pid, $collection_pid, $relationship, $ingest_file_location, $ingest_file_methods, $document, $transform, $state);
       $foxml->ingest();
       $_SESSION['fedora_ingest_files'] = '';
       $form_state['storage'] = NULL;

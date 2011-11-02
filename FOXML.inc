@@ -30,6 +30,7 @@ class FOXML extends DOMDocument {
   protected $collectionPid;
   protected $contentModelPid;
   protected $ingestFileLocations;
+  protected $ingestFileMethods;
   protected $label;
   protected $user;
   protected $document;
@@ -48,7 +49,7 @@ class FOXML extends DOMDocument {
    * @param <type> $ingest_file_location
    * @param <type> $document 
    */
-  public function __construct($label, $pid, $dsid, $content_model_pid, $collection_pid, $relationship, $ingest_file_locations, $document, $transform, $state = 'A') {
+  public function __construct($label, $pid, $dsid, $content_model_pid, $collection_pid, $relationship, $ingest_file_locations, $ingest_file_method, $document, $transform, $state = 'A') {
     global $user;
     parent::__construct("1.0", "UTF-8"); // DomDocument
     $this->formatOutput = TRUE;
@@ -62,6 +63,7 @@ class FOXML extends DOMDocument {
     $this->collectionPid = $collection_pid;
     $this->relationship = isset($relationship) ? $relationship : 'isMemberOfCollection';
     $this->ingestFileLocations = $ingest_file_locations;
+    $this->ingestFileMethods = $ingest_file_methods;
     $this->document = $document;
     $this->transform = $transform;
     $this->root = $this->createRootElement();
@@ -159,8 +161,7 @@ class FOXML extends DOMDocument {
     if (empty($this->ingestFileLocations) || count($this->ingestFileLocations) === 0)
       return;
     foreach ($this->ingestFileLocations as $dsid => $file) {
-      if ($dsid == 'CML') {
-//        drupal_set_message('DSID: ' . $dsid);
+      if ($this->ingestFileMethods == 'X') {
         $datastream = $this->createDatastreamElement($dsid, 'A', 'X');
         $version = $this->createDatastreamVersionElement($dsid . '.0', $dsid . ' Record', 'text/xml');
         $content = $this->createDatastreamContentElement();
@@ -175,7 +176,6 @@ class FOXML extends DOMDocument {
       }
       else {
         $dsid = fix_dsid($dsid);
-//        drupal_set_message('DSID: ' . $dsid);
         list($label, $mime_type, $file_url) = $this->getFileAttributes($file);
         $datastream = $this->createDatastreamElement($dsid, 'A', 'M');
         $version = $this->createDatastreamVersionElement($dsid . '.0', $label, $mime_type);
