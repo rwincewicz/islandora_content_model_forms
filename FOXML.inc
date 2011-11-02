@@ -1,6 +1,6 @@
 <?php
 
-
+// $Id$
 
 /**
  * @file
@@ -159,12 +159,29 @@ class FOXML extends DOMDocument {
     if (empty($this->ingestFileLocations) || count($this->ingestFileLocations) === 0)
       return;
     foreach ($this->ingestFileLocations as $dsid => $file) {
-      $dsid = fix_dsid($dsid);
-      list($label, $mime_type, $file_url) = $this->getFileAttributes($file);
-      $datastream = $this->createDatastreamElement($dsid, 'A', 'M');
-      $version = $this->createDatastreamVersionElement($dsid . '.0', $label, $mime_type);
-      $content = $this->createDatastreamContentLocationElement('URL', $file_url);
-      $this->root->appendChild($datastream)->appendChild($version)->appendChild($content);
+      if ($dsid == 'CML') {
+//        drupal_set_message('DSID: ' . $dsid);
+        $datastream = $this->createDatastreamElement($dsid, 'A', 'X');
+        $version = $this->createDatastreamVersionElement($dsid . '.0', $dsid . ' Record', 'text/xml');
+        $content = $this->createDatastreamContentElement();
+//        $node = $this->importNode($this->document->documentElement, TRUE);
+        $xml = new DOMDocument();
+        $xml->load($file);
+        $element = $xml->getElementsByTagName("cml")->item(0);
+        $node = $this->importNode($element, TRUE);
+        $this->root->appendChild($datastream)->appendChild($version)->appendChild($content)->appendChild($node);
+        // Once again god damn you libxml...
+        $class = get_class($this->document);
+      }
+      else {
+        $dsid = fix_dsid($dsid);
+//        drupal_set_message('DSID: ' . $dsid);
+        list($label, $mime_type, $file_url) = $this->getFileAttributes($file);
+        $datastream = $this->createDatastreamElement($dsid, 'A', 'M');
+        $version = $this->createDatastreamVersionElement($dsid . '.0', $label, $mime_type);
+        $content = $this->createDatastreamContentLocationElement('URL', $file_url);
+        $this->root->appendChild($datastream)->appendChild($version)->appendChild($content);
+      }
     }
   }
 
@@ -212,7 +229,7 @@ class FOXML extends DOMDocument {
       $xml = new SimpleXMLElement($policy_stream);
     } catch (Exception $exception) {
       watchdog(t("Fedora_Repository"), t("Problem getting security policy."), NULL, WATCHDOG_ERROR);
-      drupal_set_message(t('Problem getting security policy: @e', array('@e' => $exception->getMessage())), 'error');
+      drupal_set_message(t('Problem getting security policy: !e', array('!e' => $exception->getMessage())), 'error');
       return FALSE;
     }
     $policy_element = $this->createDocumentFragment();
@@ -351,7 +368,7 @@ class FOXML extends DOMDocument {
    */
   private function createDublinCoreDatastream() {
     $datastream = $this->createDatastreamElement('DC', 'A', 'X');
-    $version = $this->createDatastreamVersionElement('DC.0', 'Dublin Core Record', 'text/xml');
+    $version = $this->createDatastreamVersionElement('DC.0', 'Dublic Core Record', 'text/xml');
     $content = $this->createDatastreamContentElement();
     $dublin_core = $this->applyTransformation();
     if (isset($dublin_core)) {
@@ -406,8 +423,8 @@ class FOXML extends DOMDocument {
         }
       }
     } catch (exception $exception) {
-      drupal_set_message(t('Error ingesting object: @e', array('@e' => $exception->getMessage())), 'error');
-      watchdog(t("Fedora_Repository"), t("Error ingesting object: @e", array('@e' => $exception->getMessage())), NULL, WATCHDOG_ERROR);
+      drupal_set_message(t('Error ingesting object: !e', array('!e' => $exception->getMessage())), 'error');
+      watchdog(t("Fedora_Repository"), t("Error ingesting object: !e", array('!e' => $exception->getMessage())), NULL, WATCHDOG_ERROR);
       // TODO is this necessary?
       foreach ($this->ingestFileLocations as $file)
         file_delete($file);
