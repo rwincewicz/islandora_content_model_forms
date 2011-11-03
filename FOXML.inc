@@ -49,7 +49,7 @@ class FOXML extends DOMDocument {
    * @param <type> $ingest_file_location
    * @param <type> $document 
    */
-  public function __construct($label, $pid, $dsid, $content_model_pid, $collection_pid, $relationship, $ingest_file_locations, $ingest_file_method, $document, $transform, $state = 'A') {
+  public function __construct($label, $pid, $dsid, $content_model_pid, $collection_pid, $relationship, $ingest_file_locations, $ingest_file_methods, $document, $transform, $state = 'A') {
     global $user;
     parent::__construct("1.0", "UTF-8"); // DomDocument
     $this->formatOutput = TRUE;
@@ -161,7 +161,8 @@ class FOXML extends DOMDocument {
     if (empty($this->ingestFileLocations) || count($this->ingestFileLocations) === 0)
       return;
     foreach ($this->ingestFileLocations as $dsid => $file) {
-      if ($this->ingestFileMethods == 'X') {
+      $ingestMethods = $this->ingestFileMethods;
+      if ($ingestMethods[$dsid] == 'X') {
         $datastream = $this->createDatastreamElement($dsid, 'A', 'X');
         $version = $this->createDatastreamVersionElement($dsid . '.0', $dsid . ' Record', 'text/xml');
         $content = $this->createDatastreamContentElement();

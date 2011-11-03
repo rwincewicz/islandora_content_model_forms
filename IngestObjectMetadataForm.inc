@@ -219,7 +219,7 @@ class IngestObjectMetadataForm {
           $ingest_file_location[$key] = $value;
         }
       }
-      if (isset($_SESSION['fedora_ingest_methods']) && is_array($_SESSION['fedora_ingest_method'])) {
+      if (isset($_SESSION['fedora_ingest_method']) && is_array($_SESSION['fedora_ingest_method'])) {
         foreach ($_SESSION['fedora_ingest_method'] as $key => $value) {
           $ingest_file_methods[$key] = $value;
         }
